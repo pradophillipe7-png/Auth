@@ -1,0 +1,11 @@
+{
+  "users": [
+    {
+      "user": "admin",
+      "pass": "123",
+      "credits": 0,
+      "deviceId": ""
+    }
+  ],
+  "keys": []
+}
