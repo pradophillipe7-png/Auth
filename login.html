@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Companhia Shelby</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #000;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  color: white;
+}
+
+/* LED fundo */
+body::before {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%);
+  filter: blur(70px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* CARD */
+.card {
+  position: relative;
+  width: 340px;
+  padding: 35px;
+  border-radius: 14px;
+  text-align: center;
+
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 25px rgba(255,255,255,0.08);
+}
+
+/* TITULO */
+h2 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 3px;
+}
+
+h3 {
+  margin: 6px 0 20px 0;
+  font-size: 11px;
+  opacity: 0.6;
+  letter-spacing: 2px;
+}
+
+/* INPUTS */
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.6);
+  color: white;
+  outline: none;
+  box-sizing: border-box;
+}
+
+input:focus {
+  border: 1px solid white;
+  box-shadow: 0 0 10px rgba(255,255,255,0.25);
+}
+
+/* BOTÃO */
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 0 20px rgba(255,255,255,0.25);
+}
+
+button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 30px rgba(255,255,255,0.4);
+}
+
+/* texto */
+.small {
+  margin-top: 12px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+  <h2>COMPANHIA SHELBY</h2>
+  <h3>ACCESS SYSTEM • LOGIN PANEL</h3>
+
+  <input id="user" placeholder="Usuário">
+  <input id="pass" type="password" placeholder="Senha">
+
+  <button onclick="login()">ENTRAR</button>
+
+  <div class="small">Sistema seguro • Device Lock ativo</div>
+</div>
+
+<script>
+
+// 🔐 cria ID único do celular/navegador
+const deviceId = localStorage.getItem("deviceId")
+  || crypto.randomUUID();
+
+localStorage.setItem("deviceId", deviceId);
+
+async function login() {
+  const user = document.getElementById("user").value;
+  const pass = document.getElementById("pass").value;
+
+  const res = await fetch("/login", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      user,
+      pass,
+      deviceId
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    localStorage.setItem("user", user);
+    window.location.href = "/dashboard.html";
+  } else {
+    alert(data.msg || "Login inválido");
+  }
+}
+</script>
+
+</body>
+</html>

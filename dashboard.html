@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Companhia Shelby - Dashboard</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #000;
+  color: white;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* LED fundo */
+body::before {
+  content: "";
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%);
+  filter: blur(70px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* HEADER */
+header {
+  text-align: center;
+  padding: 25px;
+}
+
+header h1 {
+  margin: 0;
+  letter-spacing: 3px;
+}
+
+header p {
+  margin: 5px 0;
+  opacity: 0.6;
+  font-size: 12px;
+}
+
+/* INFO */
+#info {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* GRID */
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 40px;
+  max-width: 900px;
+  margin: auto;
+}
+
+/* CARD */
+.card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+/* BOTÃO */
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  transform: scale(1.03);
+}
+
+/* INPUT */
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.5);
+  color: white;
+  outline: none;
+}
+
+/* OUTPUT */
+#out {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+  <h1>COMPANHIA SHELBY</h1>
+  <p>Dashboard • Control Panel</p>
+</header>
+
+<div id="info"></div>
+
+<div class="container">
+
+  <div class="card">
+    <h3>1 DIA</h3>
+    <p>10 créditos</p>
+    <input id="q1" type="number" value="1" min="1">
+    <button onclick="gen('1d','q1')">GERAR</button>
+  </div>
+
+  <div class="card">
+    <h3>3 DIAS</h3>
+    <p>30 créditos</p>
+    <input id="q3" type="number" value="1" min="1">
+    <button onclick="gen('3d','q3')">GERAR</button>
+  </div>
+
+  <div class="card">
+    <h3>7 DIAS</h3>
+    <p>70 créditos</p>
+    <input id="q7" type="number" value="1" min="1">
+    <button onclick="gen('7d','q7')">GERAR</button>
+  </div>
+
+  <div class="card">
+    <h3>30 DIAS</h3>
+    <p>100 créditos</p>
+    <input id="q30" type="number" value="1" min="1">
+    <button onclick="gen('30d','q30')">GERAR</button>
+  </div>
+
+</div>
+
+<p id="out"></p>
+
+<script>
+
+const user = localStorage.getItem("user");
+const deviceId = localStorage.getItem("deviceId");
+
+document.getElementById("info").innerText =
+"Usuário: " + user;
+
+async function gen(type, inputId) {
+  const quantity = document.getElementById(inputId).value;
+
+  const res = await fetch("/generate", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      type,
+      quantity: parseInt(quantity)
+    })
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    document.getElementById("out").innerText =
+    `GERADAS: ${data.total} KEYS | ${data.credits} CRÉDITOS POR KEY\n\n` +
+    data.keys.join("\n");
+  } else {
+    document.getElementById("out").innerText = "Erro ao gerar keys";
+  }
+}
+
+//
+// créditos do usuário
+//
+async function load() {
+  const res = await fetch("/me", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ user, deviceId })
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    document.getElementById("info").innerText =
+    `Usuário: ${user} | Créditos: ${data.credits}`;
+  }
+}
+
+load();
+
+</script>
+
+</body>
+</html>
